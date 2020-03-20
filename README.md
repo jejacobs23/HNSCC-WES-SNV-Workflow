@@ -98,7 +98,7 @@ INTERVALS="cleaned_exon.bed"
 java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R $REF -I $INPUT_FILE -knownSites $KNOWN_SITES_1 -knownSites $KNOWN_SITES_2 -L $INTERVALS -o recal_data.table
 ```
 
-**Step 5) Apply the BQSR to the variants file
+**Step 5) Apply the BQSR to the variants file**
 The GATK tool, "PrintReads" was used to take the report from the GATK BaseRecalibrator and actually recalibrate the quality scores in the called bases in the alignment .bam file.  Separate PrintReads runs were carried out for the tumor and matched normal samples.
 
 ```
@@ -108,7 +108,7 @@ REF="hg19.fa"
 INPUT_FILE="rg_added_aligned_MarkedDup.bam"
 TABLE="recal_data.table"
 
-java -jar GenomeAnalysisTK.jar -T PrintReads -R $REF -I $INPUT_FILE -BQSR $TABLE -o $OUTPUT_DIR/recal_reads.bam
+java -jar GenomeAnalysisTK.jar -T PrintReads -R $REF -I $INPUT_FILE -BQSR $TABLE -o recal_reads.bam
 ```
 **Step 6) Tumor-Only Mutect2 run to create prePON file**
 The GATK tool, "MuTect2" was used to prepare the normal samples to be combined into a panel of normals.  Each normal sample is run separately.
