@@ -157,7 +157,7 @@ java -jar GenomeAnalysisTK.jar -T CombineVariants \
     -o MuTect2_PON.vcf
 ```
 
-**Step 8) Estimate level of contamination is tumor samples**
+**Step 8) Estimate level of contamination in tumor samples**
 The GATK tool, "ContEst" was used to determine the percent contamination of an input bam.  This method uses the nomral bam for genotypeing on-the-fly
 
 ```
