@@ -78,6 +78,24 @@ TMP_DIR=<path to appropriate location for a temp directory>
 ```
 
 **Step 4) Base Quality Score Recalibration**
+The GATK tool, "BaseRecalibrator" is used to take a .bam file, the GATK reference for hg19 as well as a file containing the known sites of variation in hg19 and produces a recal_data.table as the output.  This consists of several tables.
+- The list of arguments
+- The quantized qualities talbe
+- The recalibration table by read group
+- The recalibration talbe by quality score
+- The recalibration table for all the optional covariates
+
+```
+ALIGNMENT_RUN=<Sample ID>
+
+REF="hg19.fa"
+INPUT_FILE="rg_added_aligned_MarkedDup.bam"
+KNOWN_SITES_1="sorted_dbsnp_138.hg19.vcf"
+KNOWN_SITES_2="Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"
+INTERVALS=$COMMON_DIR"/submit_scripts/HNSCC_SNV_Workflow/cleaned_exon.bed"
+
+srun java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R $REF -I $INPUT_FILE -knownSites $KNOWN_SITES_1 -knownSites $KNOWN_SITES_2 -L $INTERVALS -o recal_data.table
+```
 
 # Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
