@@ -17,7 +17,7 @@ The "-t" flag tells the program how many threads to use.
 
 The output file is specified in "--output" above
 
-'''
+```
 fasta_dir=<path to fasta file>
 alignment_run=<sample ID>
 ID="DNA170613MK.L00"${SLURM_ARRAY_TASK_ID}
@@ -28,4 +28,4 @@ input_F=DNA170613MK_DNA_Tissue_"$alignment_run"_S24_L00"${SLURM_ARRAY_TASK_ID}"_
 input_R=DNA170613MK_DNA_Tissue_"$alignment_run"_S24_L00"${SLURM_ARRAY_TASK_ID}"_R2_001.fastq
 
 bwa-0.7.15/bwa mem -M -R "@RG\tID:$ID\tPL:$PL\tLB:$LB\tSM:$SM" -t 32 $fasta_dir/hg19.fa $input_F $input_R
-'''
+```
