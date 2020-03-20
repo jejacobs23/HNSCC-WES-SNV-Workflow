@@ -33,7 +33,7 @@ Notes on read group fields:
 - SM: This is the sample identifier.  This is the unique name given the the individual sample.  GATK tools treat all read groups with the same SM value as containing sequencing data for the same sample, and this is also used for the sample column in the VCF file.
 
 **Step 2) Merge BAM files**
-Picard tools -- utilizing java -- is used to take the individual alignemnts from each of the WES lanes and merge them into one complete .bam file.  Separate merges were carried out for the tumor and matched normal samples.
+Picard Tools -- utilizing Java -- is used to take the individual alignemnts from each of the WES lanes and merge them into one complete .bam file.  Separate merges were carried out for the tumor and matched normal samples.
 
 ```
 #for n lanes
@@ -54,6 +54,28 @@ java -Xmx8G -jar picard.jar MergeSamFiles \
 #           .
     I=$file_<n> \
     O=aligned.bam \
+```
+
+**Step 3) Mark Duplicates**
+Picard Tools -- utilizing Java -- is used to mark any duplicate reads from a sequence alignment file.  Separate MarkDuplicates runs were carried out for the tumor and matched normal samples.
+
+The CREATE_INDEX=true command will create an index for the outputed .bam file.  This is needed for downstream GATK tools.
+
+The VALIDATION_STRINGENCY=SILENT is set per GATK pipeline
+
+A Temp Directory (TMP_DIR) can be designated if needed
+
+```
+ALIGNMENT_RUN=<Sample ID>
+
+java -Xmx8G -jar $PICARD_DIR/picard.jar MarkDuplicates \
+I=<path to inputfile> \
+O=rg_added_aligned_MarkedDup.bam \
+CREATE_INDEX=true \
+VALIDATION_STRINGENCY=SILENT \
+M=Markdup_metrics.txt \
+TMP_DIR=<path to appropriate location for a temp directory>
+```
 
 #Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
