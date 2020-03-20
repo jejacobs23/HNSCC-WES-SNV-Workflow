@@ -84,6 +84,7 @@ The GATK tool, "BaseRecalibrator" is used to take a .bam file, the GATK referenc
 - The recalibration table by read group
 - The recalibration talbe by quality score
 - The recalibration table for all the optional covariates
+Separate Base Quality Score Recalibration (BQSR) runs were carried out for the tumor and matched normal samples.
 
 ```
 ALIGNMENT_RUN=<Sample ID>
@@ -92,9 +93,67 @@ REF="hg19.fa"
 INPUT_FILE="rg_added_aligned_MarkedDup.bam"
 KNOWN_SITES_1="sorted_dbsnp_138.hg19.vcf"
 KNOWN_SITES_2="Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"
-INTERVALS=$COMMON_DIR"/submit_scripts/HNSCC_SNV_Workflow/cleaned_exon.bed"
+INTERVALS="cleaned_exon.bed"
 
-srun java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R $REF -I $INPUT_FILE -knownSites $KNOWN_SITES_1 -knownSites $KNOWN_SITES_2 -L $INTERVALS -o recal_data.table
+java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R $REF -I $INPUT_FILE -knownSites $KNOWN_SITES_1 -knownSites $KNOWN_SITES_2 -L $INTERVALS -o recal_data.table
+```
+
+**Step 5) Apply the BQSR to the variants file
+The GATK tool, "PrintReads" was used to take the report from the GATK BaseRecalibrator and actually recalibrate the quality scores in the called bases in the alignment .bam file.  Separate PrintReads runs were carried out for the tumor and matched normal samples.
+
+```
+ALIGNMENT_RUN=<Sample ID>
+
+REF="hg19.fa"
+INPUT_FILE="rg_added_aligned_MarkedDup.bam"
+TABLE="recal_data.table"
+
+java -jar GenomeAnalysisTK.jar -T PrintReads -R $REF -I $INPUT_FILE -BQSR $TABLE -o $OUTPUT_DIR/recal_reads.bam
+```
+**Step 6) Tumor-Only Mutect2 run to create prePON file**
+The GATK tool, "MuTect2" was used to prepare the normal samples to be combined into a panel of normals.  Each normal sample is run separately.
+
+```
+ALIGNMENT_RUN=<Sample ID>
+
+REF="hg19.fa"
+INPUT_FILE="recal_reads.bam"
+DBSNP="sorted_dbsnp_138.hg19.vcf"
+COSMIC="sorted_CosmicCodingMuts.vcf"
+INTERVALS="nexterarapidcapture_exome_targetedregions_v1.2.bed"
+
+java -jar GenomeAnalysisTK.jar -T MuTect2 \
+    -R $REF \
+    -I:tumor $INPUT_FILE \
+    --dbsnp $DBSNP \
+    --cosmic $COSMIC \
+    -L $INTERVALS \
+    --interval_padding 50 \
+    --artifact_detection_mode \
+    -o prePON.vcf
+```
+
+**Step 7) Combine prePON files into a Panel of Normals**
+The GATK tool, "CombineVariants" was used to create a PONs
+
+```
+#For n samples
+
+REF="hg19.fa"
+
+java -jar GenomeAnalysisTK.jar -T CombineVariants \
+    -R $REF \
+    -V <path to directory for Sample 1>/prePON.vcf \
+    -V <path to directory for Sample 2>/prePON.vcf \
+    #                       .
+    #                       .
+    #                       .
+    -V <path to directory for Sample n>/prePON.vcf \
+    -minN 2 \
+    --setKey \"null\" \
+    --filteredAreUncalled \
+    --filteredrecordsmergetype KEEP_IF_ANY_UNFILTERED \
+    -o MuTect2_PON.vcf
 ```
 
 # Refernces
