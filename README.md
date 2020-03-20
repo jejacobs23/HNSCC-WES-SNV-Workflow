@@ -53,7 +53,7 @@ java -Xmx8G -jar picard.jar MergeSamFiles \
 #           .
 #           .
     I=$file_<n> \
-    O=aligned.bam \
+    O=aligned.bam
 ```
 
 **Step 3) Mark Duplicates**
@@ -69,13 +69,15 @@ A Temp Directory (TMP_DIR) can be designated if needed
 ALIGNMENT_RUN=<Sample ID>
 
 java -Xmx8G -jar $PICARD_DIR/picard.jar MarkDuplicates \
-I=<path to inputfile> \
+I=aligned.bam \
 O=rg_added_aligned_MarkedDup.bam \
 CREATE_INDEX=true \
 VALIDATION_STRINGENCY=SILENT \
 M=Markdup_metrics.txt \
 TMP_DIR=<path to appropriate location for a temp directory>
 ```
+
+**Step 4) Base Quality Score Recalibration**
 
 #Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
