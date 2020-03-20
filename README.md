@@ -4,11 +4,11 @@ Workflow for identifying single-nucleotide-variants (SNV) in Head and Neck Squam
 # Version Notes
 - These analyses were carried out on the OHSU cluster computing system (Exacloud) using CentOS 7.5.1804 unless otherwise noted
 - Exacloud uses the job scheduler, Slurm, for job submissions.  See separate files for Slurm submit scripts. 
-- Alignment of sequencing reads is accomplished using the Burrows-Wheeler Aligner.  The version used was bwa-0.7.15
+- Alignment of sequencing reads was accomplished using the Burrows-Wheeler Aligner.  The version used was bwa-0.7.15
 
 # Workflow
 **Step 1) Alignment of sequencingn reads to the hg19** 
-The program BWA is used to align sequencing reads to a the hg19 human reference genome.  Sequencing reads from each lane are aligned individually.  They will later be combined into a single .bam file for each sample.
+The program BWA is used to align sequencing reads to a the hg19 human reference genome.  Sequencing reads from each lane are aligned individually.  They will later be combined into a single .bam file for each sample.  Separate alignments were carried out for the tumor and matched normal samples.  
 
 The "-M" flag tells the program to mark shorter split hits as secondary (for Picard compatibility)
 
@@ -32,8 +32,28 @@ Notes on read group fields:
 - LB: This is the DNA preparation library identifier.  The LB field can be used to identify molecular duplicates in case the same DNA library was sequenced on multiple lanes.
 - SM: This is the sample identifier.  This is the unique name given the the individual sample.  GATK tools treat all read groups with the same SM value as containing sequencing data for the same sample, and this is also used for the sample column in the VCF file.
 
-**Step 2) Merge SAM files**
+**Step 2) Merge BAM files**
+Picard tools -- utilizing java -- is used to take the individual alignemnts from each of the WES lanes and merge them into one complete .bam file.  Separate merges were carried out for the tumor and matched normal samples.
 
+```
+#for n lanes
+
+ALIGNMENT_RUN=<Sample ID>
+file_1=aligned_lane_1.bam"
+file_2=aligned_lane_2.bam"
+#            .
+#            .
+#            .
+file_<n>=aligned_lane_<n>.bam"
+
+java -Xmx8G -jar picard.jar MergeSamFiles \
+    I=$file_1 \
+    I=$file_2 \
+#           .
+#           .
+#           .
+    I=$file_<n> \
+    O=aligned.bam \
 
 #Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
