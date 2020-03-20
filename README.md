@@ -110,6 +110,7 @@ TABLE="recal_data.table"
 
 java -jar GenomeAnalysisTK.jar -T PrintReads -R $REF -I $INPUT_FILE -BQSR $TABLE -o recal_reads.bam
 ```
+
 **Step 6) Tumor-Only Mutect2 run to create prePON file**
 The GATK tool, "MuTect2" was used to prepare the normal samples to be combined into a panel of normals.  Each normal sample is run separately.
 
@@ -154,6 +155,55 @@ java -jar GenomeAnalysisTK.jar -T CombineVariants \
     --filteredAreUncalled \
     --filteredrecordsmergetype KEEP_IF_ANY_UNFILTERED \
     -o MuTect2_PON.vcf
+```
+
+**Step 8) Estimate level of contamination is tumor samples**
+The GATK tool, "ContEst" was used to determine the percent contamination of an input bam.  This method uses the nomral bam for genotypeing on-the-fly
+
+```
+ALIGNMENT_RUN=<Sample ID>
+
+REF="hg19.fa"
+TUMOR=<path to directory for tumor sample>/recal_reads.bam"
+NORMAL=<path to directory for matched normal sample>/recal_reads.bam"
+POPFILE="hapmap_3.3_hg19_pop_stratified_af.vcf"
+
+java -jar GenomeAnalysisTK.jar -T ContEst \
+    -R $REF \
+    -I:eval $TUMOR \
+    -I:genotype $NORMAL \
+    --popfile $POPFILE \
+    -o sample.conest
+```
+
+**Step 9) Call variants in tumor sample relative to the matched normal sample**
+The GATK tool, "MuTect2" was used to call mutations in the tumor samples relative to the normals.  Each sample was run separately.  MuTect2 has the ability to use COSMIC data in conjunction with dbSNP to adjust the threshold for evidence of a variant in the normal.  If a variant is present in dbSNP, but not in COSMIC then more evidence is required from the normal sample to prove the variant is not present in germline.  rsIDs from the dbSNP file are used to populate the ID column of the output.  Also, the DB INFO flag will be set when appropriate.  dbSNP overlap is only used to require more evidence of absence in the normal if the variant in question has been seen before in germline.
+
+Note: The contamination results from Step 8 are reported as percentages.  If the sample.conest reports a contaminatio of 0.3, then it should be entered into MuTect2 as 0.003.
+
+```
+ALIGNMENT_RUN=<Sample ID>
+
+REF="hg19.fa"
+TUMOR=<path to directory for tumor sample>/recal_reads.bam"
+NORMAL=<path to directory for normal sample>/recal_reads.bam"
+DBSNP="sorted_dbsnp_138.hg19.vcf"
+COSMIC="sorted_CosmicCodingMuts.vcf"
+INTERVALS="nexterarapidcapture_exome_targetedregions_v1.2.bed"
+CONTAMINATION=<results from sample.conest>
+PANOFNORMS="MuTect2_PON.vcf"
+
+java -jar GenomeAnalysisTK.jar -T MuTect2 \
+    -R $REF \
+    -I:tumor $TUMOR \
+    -I:normal $NORMAL \
+    --dbsnp $DBSNP \
+    --cosmic $COSMIC \
+    -L $INTERVALS \
+    --interval_padding 50 \
+    --contamination_fraction_to_filter $CONTAMINATION \
+    -PON $PANOFNORMS \
+    -o variants.vcf
 ```
 
 # Refernces
