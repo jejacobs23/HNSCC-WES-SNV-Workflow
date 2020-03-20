@@ -79,6 +79,6 @@ TMP_DIR=<path to appropriate location for a temp directory>
 
 **Step 4) Base Quality Score Recalibration**
 
-#Refernces
+# Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
 2) Li H. and Durbin R. Fast and accurate short read alignment with Burrows-Wheeler Transform.  Bioinformatics 2009;25:1754-60.
