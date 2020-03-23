@@ -93,9 +93,16 @@ REF="hg19.fa"
 INPUT_FILE="rg_added_aligned_MarkedDup.bam"
 KNOWN_SITES_1="sorted_dbsnp_138.hg19.vcf"
 KNOWN_SITES_2="Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"
-INTERVALS="cleaned_exon.bed"
+INTERVALS="nexterarapidcapture_exome_targetedregions_v1.2.bed"
 
-java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R $REF -I $INPUT_FILE -knownSites $KNOWN_SITES_1 -knownSites $KNOWN_SITES_2 -L $INTERVALS -o recal_data.table
+java -jar GenomeAnalysisTK.jar -T BaseRecalibrator \
+    -R $REF \
+    -I $INPUT_FILE \
+    -knownSites $KNOWN_SITES_1 \
+    -knownSites $KNOWN_SITES_2 \
+    -L $INTERVALS \
+    --interval_padding 50 \
+    -o recal_data.table
 ```
 
 **Step 5) Apply the BQSR to the variants file**
