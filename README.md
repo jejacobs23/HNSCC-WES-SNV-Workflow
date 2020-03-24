@@ -213,6 +213,15 @@ java -jar GenomeAnalysisTK.jar -T MuTect2 \
     -o variants.vcf
 ```
 
+**Step 10) Filter variant file by variants that only have the "PASS" designation in their filtering field**
+The python program, filter_VCF_by_PASS.py" processes the .vcf file from Mutect2 output and filters it so only the variants with a "PASS" in their filter feild will be carried forward to the new file.
+
+```
+python filter_VCF_by_PASS.py
+```
+
+**Step 11) **
+
 # Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
 2) Li H. and Durbin R. Fast and accurate short read alignment with Burrows-Wheeler Transform.  Bioinformatics 2009;25:1754-60.
