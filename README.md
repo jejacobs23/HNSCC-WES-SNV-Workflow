@@ -214,13 +214,32 @@ java -jar GenomeAnalysisTK.jar -T MuTect2 \
 ```
 
 **Step 10) Filter variant file by variants that only have the "PASS" designation in their filtering field**
-The python program, filter_VCF_by_PASS.py" processes the .vcf file from Mutect2 output and filters it so only the variants with a "PASS" in their filter feild will be carried forward to the new file.
+The python program, "filter_VCF_by_PASS.py", processes the .vcf file from Mutect2 output and filters it so only the variants with a "PASS" in their filter feild will be carried forward to the new file.
 
 ```
 python filter_VCF_by_PASS.py
 ```
 
-**Step 11) **
+**Step 11) Format the variants for processing via the Provean website**
+The pyhton program, "preProvean.py", takes the variants file and formats each variant so they can be evaluated by Provean
+
+```
+python preProvean.py
+```
+
+**Step 12) Add allele frequency to the Provean output**
+The python program, "add_af_to_output.py", takes the Provean results and adds in the af from the .vcf file to the output
+
+```
+python add_af_to_output.py
+```
+
+**Step 13) Add COSMIC and ExAC information**
+The Python program, "add_COSMIC_ExAC_to_output.py", takes the Provean results (with af added) and adds in any COSMIC and/or ExAC annotations if they exist
+
+```
+python add_COSMIC_ExAC_to_output.py
+```
 
 # Refernces
 1) Read Groups.  https://gatkforums.broadinstitute.org/gatk/discussion/6472/read-groups
