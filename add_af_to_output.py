@@ -5,9 +5,9 @@
 runs = [<list of Sample IDs>]
 
 for u in runs:
-    infile1 = "variants_PASS.vcf"
-    infile2 = "PROVEAN_RESULTS.tsv"
-    outfile = "PROVEAN_RESULTS_with_AF.tsv"
+    infile1 = <path to run r>"/variants_PASS.vcf"
+    infile2 = <path to run r>"/PROVEAN_RESULTS.tsv"
+    outfile = <path to run r>"/PROVEAN_RESULTS_with_AF.tsv"
     D = {}
     fi1 = open(infile1, 'r')
     fi2 = open(infile2, 'r')
