@@ -1,0 +1,45 @@
+#!/usr/bin/bash
+#SBATCH --mail-type=ALL,TIME_LIMIT
+#SBATCH --mail-user=jacojam@ohsu.edu
+#SBATCH -A jjacobs
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=32
+#SBATCH --mincpus=32
+#SBATCH --mem-per-cpu=8G
+#SBATCH -a 8
+#SBATCH --time=1-12:00:00
+#SBATCH --error=/home/exacloud/lustre1/mcweeney_lab/jacojam/hnscc_logs/stderr.BWA_align_N_%a
+#SBATCH --output=/home/exacloud/lustre1/mcweeney_lab/jacojam/data/hnscc/DNASeq/hg19_BWA_alignment_10320_normal/aligned_lane_%a.bam
+
+#This submit script uses the program BWA and the function mem to align sequencing reads to a the hg19 human
+#reference genome.  This one aligns sequencing reads from each lane individually.  They will later be combined
+#into a single .bam file for each sample.
+#
+#I've requested all 32 cores on a single node so that the job can be split amongst
+#32 threads.  I've requested 8Gb/CPU in order to maxamize the memory.
+#
+#The "-M" flag tells the program to Mark shorter split hits
+#as secondary (for Picard compatibility)
+#
+#The "-t" flag tells the program how many threads to use.
+#
+#The output file is specified in "--output" above
+#
+#The BWA program is located in
+#home/exacloud/lustre1/jjacobs/programs/bwa-0.7.15/bwa
+
+common_dir="/home/exacloud/lustre1/mcweeney_lab/jacojam"
+fasta_dir="/home/exacloud/lustre1/mcweeney_lab/jacojam/BWA_indexes/hg19_hnscc/zheng_workflow"
+alignment_run="10320"
+ID="DNA170613MK.L00"${SLURM_ARRAY_TASK_ID}
+#ID="DNA190510MK.L00"${SLURM_ARRAY_TASK_ID}
+PL="Illumina"
+LB=$alignment_run"N"
+SM=$alignment_run"N"
+input_F=$common_dir"/data/hnscc/DNASeq/raw_data/DNA170613MK_DNA_Blood_"$alignment_run"_S27_L00"${SLURM_ARRAY_TASK_ID}"_R1_001.fastq"
+input_R=$common_dir"/data/hnscc/DNASeq/raw_data/DNA170613MK_DNA_Blood_"$alignment_run"_S27_L00"${SLURM_ARRAY_TASK_ID}"_R2_001.fastq"
+#input_F=$common_dir"/data/hnscc/DNASeq/raw_data/09-30-19_download/DNA190510MK/DNA190510MK_DNA_Blood_"$alignment_run"_S9_L00"${SLURM_ARRAY_TASK_ID}"_R1_001.fastq.gz"
+#input_R=$common_dir"/data/hnscc/DNASeq/raw_data/09-30-19_download/DNA190510MK/DNA190510MK_DNA_Blood_"$alignment_run"_S9_L00"${SLURM_ARRAY_TASK_ID}"_R2_001.fastq.gz"
+
+
+srun $common_dir/programs/bwa-0.7.15/bwa mem -M -R "@RG\tID:$ID\tPL:$PL\tLB:$LB\tSM:$SM" -t 32 $fasta_dir/hg19.fa $input_F $input_R
