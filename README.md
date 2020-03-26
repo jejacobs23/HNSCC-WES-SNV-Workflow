@@ -5,6 +5,8 @@ Workflow for identifying single-nucleotide-variants (SNV) in Head and Neck Squam
 - These analyses were carried out on the OHSU cluster computing system (Exacloud) using CentOS 7.5.1804 unless otherwise noted
 - Exacloud uses the job scheduler, Slurm, for job submissions.  See separate files for Slurm submit scripts. 
 - Alignment of sequencing reads was accomplished using the Burrows-Wheeler Aligner.  The version used was bwa-0.7.15
+- GATK version 3.6 (Picard included)
+- All python scripts were run on python version 2.7.13
 
 # Workflow
 **Step 1) Alignment of sequencingn reads to the hg19** 
